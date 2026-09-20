@@ -1,36 +1,147 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Niko's
 
-## Getting Started
+Сайт мережі ресторанів Pan-Asian кухні. Універсальний сайт для ~20 закладів по країні: перегляд меню з прив'язкою до конкретної локації, онлайн-замовлення з доставкою або самовивозом, бронювання столика, особистий кабінет з історією замовлень та адмін-панель для керування меню, локаціями, бронюваннями й замовленнями.
 
-First, run the development server:
+## Зміст
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- [Проблема, яку вирішує проєкт](#проблема-яку-вирішує-проєкт)
+- [Основні можливості](#основні-можливості)
+- [Технологічний стек](#технологічний-стек)
+- [Системні вимоги](#системні-вимоги)
+- [Встановлення](#встановлення)
+- [Змінні середовища](#змінні-середовища)
+- [Налаштування бази даних](#налаштування-бази-даних)
+- [Запуск застосунку](#запуск-застосунку)
+- [Структура проєкту](#структура-проєкту)
+- [Опис API](#опис-api)
+- [Приклад типового сценарію використання](#приклад-типового-сценарію-використання)
+- [Розгортання](#розгортання)
+
+## Проблема, яку вирішує проєкт
+
+Мережа ресторанів з кількома десятками закладів по країні зазвичай стикається з тим, що меню, ціни й доступність страв відрізняються між філіями, а клієнту незручно щоразу телефонувати чи шукати актуальну інформацію вручну. Niko's вирішує це єдиним сайтом, де клієнт обирає свою локацію один раз, після чого меню, бронювання і замовлення автоматично прив'язані саме до неї, а адміністратори мережі керують контентом без залучення розробників.
+
+## Основні можливості
+
+- реєстрація та автентифікація клієнтів (сесія на JWT, httpOnly cookie);
+- окрема захищена автентифікація адміністраторів мережі;
+- перегляд меню з прив'язкою до обраної локації — різні філії можуть мати різний асортимент;
+- пошук страв та фільтрація за гостротою й дієтою (vegan);
+- кошик з живим підрахунком суми, що зберігається протягом сесії;
+- оформлення замовлення: доставка (лише онлайн-оплата) або самовивіз (онлайн наперед або оплата на місці);
+- бронювання столика з підтвердженням на email;
+- історія замовлень і статус виконання (нове → готується → в дорозі → доставлено) в особистому кабінеті;
+- email-сповіщення про бронювання та замовлення (Resend);
+- адмін-панель: CRUD для страв меню та локацій, перегляд і зміна статусу бронювань і замовлень.
+
+## Технологічний стек
+
+| Шар | Технологія |
+|---|---|
+| Frontend / Backend | Next.js 16 (App Router), TypeScript, React 19 |
+| Стилі | Tailwind CSS v4 |
+| ORM / міграції | Prisma |
+| База даних | PostgreSQL (Neon) |
+| Автентифікація | JWT (jose), bcryptjs |
+| Email | Resend |
+| Іконки | lucide-react |
+| Хостинг | Vercel |
+
+## Системні вимоги
+
+- Node.js 18 або новіший;
+- npm;
+- доступ до PostgreSQL-бази (Neon або будь-який інший сумісний провайдер) — для локальної розробки без нього можна тимчасово використовувати SQLite, змінивши `provider` у `prisma/schema.prisma`.
+
+## Встановлення
+
+```
+# 1. Клонування репозиторію
+git clone https://github.com/Isoloneya/nikos-site.git
+cd nikos-site
+
+# 2. Встановлення залежностей
+npm install
+
+# 3. Копіювання шаблону змінних середовища
+cp .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Змінні середовища
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Значення задаються у файлі `.env` (не потрапляє до репозиторію, на Vercel задається окремо в Environment Variables):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Змінна | Опис | Приклад |
+|---|---|---|
+| `DATABASE_URL` | рядок підключення до PostgreSQL | `postgresql://user:password@host/db` |
+| `AUTH_SECRET` | секретний ключ для підпису сесійних JWT | довгий випадковий рядок, 32+ символів |
+| `RESEND_API_KEY` | ключ API для відправки email-сповіщень | `re_...` |
 
-## Learn More
+## Налаштування бази даних
 
-To learn more about Next.js, take a look at the following resources:
+```
+npx prisma generate
+npx prisma migrate deploy
+npx prisma db seed
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Команда `migrate deploy` застосовує всі міграції та створює структуру таблиць відповідно до моделей даних (`Restaurant`, `Category`, `MenuItem`, `User`, `AdminUser`, `Order`, `OrderItem`, `Booking`). Команда `db seed` наповнює базу тестовими локаціями, категоріями, стравами меню та створює обліковий запис адміністратора.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Запуск застосунку
 
-## Deploy on Vercel
+```
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Сайт: http://localhost:3000
+Адмін-панель: http://localhost:3000/admin/login
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Структура проєкту
+
+```
+nikos-site/
+├── app/
+│   ├── page.tsx                 # головна
+│   ├── menu/                    # меню з фільтрами й пошуком
+│   ├── cart/                    # кошик
+│   ├── checkout/                # оформлення замовлення
+│   ├── booking/                 # бронювання столика
+│   ├── locations/               # список і вибір локації
+│   ├── profile/                 # особистий кабінет
+│   ├── orders/[id]/             # деталі замовлення
+│   ├── login/, register/        # автентифікація клієнтів
+│   ├── admin/
+│   │   ├── login/               # вхід адміністратора
+│   │   └── dashboard/           # CRUD меню, локацій, бронювань, замовлень
+│   └── api/                     # маршрути API (auth, orders, bookings, admin/*)
+├── components/                  # Header, Footer, DishCard
+├── context/                     # CartContext (стан кошика)
+├── lib/                         # prisma-клієнт, auth-хелпери, форматування
+├── prisma/
+│   ├── schema.prisma
+│   └── seed.js
+└── types/                       # спільні TypeScript-типи
+```
+
+## Опис API
+
+| Група | Базовий шлях | Призначення |
+|---|---|---|
+| Auth (клієнти) | `/api/auth` | реєстрація, вхід, вихід |
+| Auth (адмін) | `/api/admin/login`, `/api/admin/logout` | вхід/вихід адміністратора |
+| Orders | `/api/orders` | створення замовлення, отримання історії замовлень користувача |
+| Bookings | `/api/bookings` | створення бронювання столика |
+| Location | `/api/location` | збереження обраної локації в cookie |
+| Admin: Menu | `/api/admin/menu-items` | CRUD страв меню |
+| Admin: Restaurants | `/api/admin/restaurants` | CRUD локацій |
+| Admin: Bookings | `/api/admin/bookings/[id]` | зміна статусу бронювання |
+| Admin: Orders | `/api/admin/orders/[id]` | зміна статусу замовлення |
+
+## Приклад типового сценарію використання
+
+1. Клієнт відкриває сайт, обирає локацію на сторінці `/locations`.
+2. Переглядає меню `/menu` — асортимент відповідає обраній локації.
+3. Додає страви в кошик, переходить в `/cart`, потім в `/checkout`.
+4. Оформлює замовлення: для доставки — онлайн-оплата, для самовивозу — на вибір онлайн або оплата на місці.
+5. Отримує email-підтвердження замовлення, стежить за статусом в `/profile`.
+6. Адміністратор мережі заходить у `/admin/dashboard/orders`, бачить нове замовлення і послідовно змінює його статус.

@@ -1,69 +1,74 @@
-import Image from "next/image";
+import Link from "next/link";
+import DishCard from "@/components/DishCard";
+import { prisma } from "@/lib/prisma";
 
-export default function Home() {
+export default async function HomePage() {
+  const dbItems = await prisma.menuItem.findMany({
+    where: { isAvailable: true },
+    take: 3,
+    orderBy: { createdAt: "asc" },
+    include: { category: true },
+  });
+
+  const dishes = dbItems.map((item) => ({
+    id: item.id,
+    name: item.name,
+    description: item.description,
+    priceCents: item.priceCents,
+    photoUrl: item.photoUrl ?? "",
+    isSpicy: item.isSpicy,
+    isVegan: item.isVegan,
+    category: item.category.name,
+  }));
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <>
+      <section className="grid md:grid-cols-2 gap-10 px-5 md:px-8 py-10 md:py-16 items-center max-w-6xl mx-auto">
+        <div>
+          <p className="text-sm mb-4 text-lantern">Pan-Asian кухня · 2 закладу по країні</p>
+          <h1 className="font-black leading-[1.08] mb-6" style={{ fontSize: "clamp(2rem, 5vw, 3.4rem)" }}>
+            Смак нічного ринку, прямо до дверей
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mb-8 max-w-md text-base sm:text-lg text-muted leading-relaxed">
+            Роли, рамен і дамплінги від Niko's — готуємо як на вуличних кухнях Токіо, Сеула й Бангкоку.
           </p>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <Link href="/menu" className="px-7 py-3.5 rounded-full font-semibold text-center bg-gradient-brand">
+              Переглянути меню
+            </Link>
+            <Link href="/booking" className="px-6 py-3.5 rounded-full font-medium text-center border border-border">
+              Забронювати столик
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="relative flex justify-center">
+          <div
+            className="absolute rounded-full w-[300px] h-[300px] blur-[10px]"
+            style={{ background: "radial-gradient(circle, rgba(245,194,77,0.2), transparent 70%)" }}
+          />
+          <div
+            className="absolute rounded-full w-[230px] h-[230px]"
+            style={{ background: "radial-gradient(circle, rgba(255,62,165,0.27), transparent 70%)" }}
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=700&q=80"
+            alt="Тонкоцу рамен"
+            className="relative rounded-3xl object-cover w-full max-w-[300px] sm:max-w-[340px] aspect-square border border-border"
+          />
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="px-5 md:px-8 pb-16 md:pb-20 max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold">Популярне зараз</h2>
+          <Link href="/menu" className="text-sm text-magenta">Усе меню</Link>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+          {dishes.map((d) => <DishCard key={d.id} dish={d} />)}
+        </div>
+      </section>
+    </>
   );
 }

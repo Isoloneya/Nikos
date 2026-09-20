@@ -2,16 +2,27 @@
   "name": "nikos-site",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
+"scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint",
+  "postinstall": "prisma generate"
+}
   "dependencies": {
+    "@prisma/client": "6.12.0",
+    "bcryptjs": "^3.0.3",
+    "instagram": "^0.0.4",
+    "jose": "^6.2.12",
+    "lucide-react": "^1.46.0",
     "next": "16.3.5",
+    "prisma": "6.12.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "resend": "^6.28.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -21,6 +32,15 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "msgpackr-extract@3.0.4": true,
+    "workerd@1.20260704.1": true,
+    "esbuild@0.28.2": true,
+    "unrs-resolver@1.12.2": true,
+    "@prisma/engines@6.12.0": true,
+    "prisma@6.12.0": true
   }
 }

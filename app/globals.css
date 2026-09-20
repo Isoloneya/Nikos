@@ -1,26 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Inter:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-ink: #0D0B14;
+  --color-surface: #17131F;
+  --color-surfacealt: #1F1A2B;
+  --color-border: #241E33;
+  --color-magenta: #FF3EA5;
+  --color-violet: #8B5CF6;
+  --color-lantern: #F5C24D;
+  --color-foreground: #F5F1FA;
+  --color-muted: #A79FBE;
+
+  --font-display: "Zen Kaku Gothic New", sans-serif;
+  --font-body: "Inter", sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@utility bg-gradient-brand {
+  background-image: linear-gradient(135deg, var(--color-magenta), var(--color-violet));
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@utility shadow-glow-magenta {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-magenta) 35%, transparent),
+    0 12px 40px -8px color-mix(in srgb, var(--color-magenta) 35%, transparent);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-ink text-foreground font-body;
+}
+
+h1, h2, h3, h4 {
+  @apply font-display;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
 }

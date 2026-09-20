@@ -1,0 +1,146 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Restaurant {
+  id            String   @id @default(cuid())
+  name          String
+  city          String
+  address       String
+  phone         String
+  workingHours  String 
+  bookingEmail  String
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  menuItems     MenuItem[] @relation("RestaurantMenu")
+  bookings      Booking[]
+  orders        Order[]
+}
+
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String     @unique 
+  order     Int        @default(0) 
+  menuItems MenuItem[]
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  priceCents  Int 
+  photoUrl    String?
+  isSpicy     Boolean  @default(false)
+  isVegan     Boolean  @default(false)
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+
+ 
+  restaurants Restaurant[] @relation("RestaurantMenu")
+
+  orderItems  OrderItem[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  createdAt    DateTime @default(now())
+
+  orders       Order[]
+}
+
+model AdminUser {
+  id           String @id @default(cuid())
+  email        String @unique
+  passwordHash String
+}
+
+enum OrderType {
+  DELIVERY
+  PICKUP
+}
+
+enum PaymentMethod {
+  ONLINE     
+  ON_PICKUP  
+}
+
+enum OrderStatus {
+  NEW
+  PREPARING
+  ON_THE_WAY
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id            String        @id @default(cuid())
+  type          OrderType
+  address       String?
+  paymentMethod PaymentMethod
+  status        OrderStatus   @default(NEW)
+  totalCents    Int
+  contactName   String
+  contactPhone  String
+  comment       String?
+  createdAt     DateTime      @default(now())
+
+  restaurantId  String
+  restaurant    Restaurant    @relation(fields: [restaurantId], references: [id])
+
+  userId        String? 
+  user          User?         @relation(fields: [userId], references: [id])
+
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id            String   @id @default(cuid())
+  quantity      Int
+  priceAtOrder  Int 
+
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  menuItemId    String
+  menuItem      MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model Booking {
+  id           String        @id @default(cuid())
+  name         String
+  phone        String
+  email        String
+  date         DateTime
+  time         String 
+  guests       Int
+  comment      String?
+  status       BookingStatus @default(PENDING)
+  createdAt    DateTime      @default(now())
+
+  restaurantId String
+  restaurant   Restaurant    @relation(fields: [restaurantId], references: [id])
+}

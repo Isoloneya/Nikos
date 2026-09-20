@@ -7,5 +7,10 @@ export default async function AdminBookingsPage() {
     orderBy: { date: "desc" },
   });
 
-  return <BookingsAdminClient initialBookings={bookings} />;
+  const serialized = bookings.map((b) => ({
+    ...b,
+    date: b.date.toISOString(),
+  }));
+
+  return <BookingsAdminClient initialBookings={serialized} />;
 }

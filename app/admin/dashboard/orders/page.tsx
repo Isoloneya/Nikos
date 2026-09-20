@@ -7,5 +7,10 @@ export default async function AdminOrdersPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  return <OrdersAdminClient initialOrders={orders} />;
+  const serialized = orders.map((o) => ({
+    ...o,
+    createdAt: o.createdAt.toISOString(),
+  }));
+
+  return <OrdersAdminClient initialOrders={serialized} />;
 }
